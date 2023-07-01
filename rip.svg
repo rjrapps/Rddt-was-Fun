@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 341.8 341.8" style="enable-background:new 0 0 341.8 341.8;" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style type="text/css">
+	.st0{fill:#FF4500;}
+	.st1{fill:#FFFFFF;}
+	.st2{display:none;}
+	.st3{display:inline;fill:none;stroke:#D8D8D8;stroke-width:0.5;stroke-miterlimit:10;}
+</style>
+  </defs>
+  <g id="Artwork">
+    <g>
+      <circle class="st0" cx="170.9" cy="170.9" r="85.5" style="fill: rgb(255, 98, 0);"/>
+      <path class="st1" d="M 171.753 151.3 C 164.078 151.643 179.625 154.614 173.741 151.536 L 177.294 122.483 L 197.7 126.594 C 197.9 131.294 200.741 134.671 205.541 134.671 C 210.441 134.671 212.959 132.577 212.959 127.677 C 212.959 122.777 210.653 120.47 205.753 120.47 C 202.253 120.47 200.1 121.2 198.7 124.2 C 198.7 124.2 175.5 120.9 175.3 121.5 L 171.753 151.3 Z M 196.911 210.997 C 190.45 210.62 157.703 206.054 150.441 205.103 C 149.179 204.938 149.442 201.935 150.715 201.919 C 155.605 201.856 195.648 207.104 196.548 208.004 C 197.248 209.004 198.182 211.071 196.911 210.997 Z"/>
+    </g>
+  </g>
+  <g id="Spacing_Guide" class="st2">
+    <rect class="st3" width="85.4" height="85.4"/>
+    <rect class="st3" width="341.8" height="85.4"/>
+    <rect y="256.3" class="st3" width="341.8" height="85.4"/>
+    <rect class="st3" width="85.4" height="341.8"/>
+    <rect x="256.4" class="st3" width="85.4" height="341.8"/>
+  </g>
+</svg>
