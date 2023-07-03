@@ -14,43 +14,61 @@ import kotlinx.coroutines.launch
 import java.net.HttpURLConnection
 import java.net.URL
 
-
 class RedirectActivity : ComponentActivity() {
+
+    private companion object {
+        private const val PROTOCOL_HTTPS = "https://"
+        private const val SUBDOMAIN_OLD = "https://old."
+        private const val SUBDOMAIN_WWW = "https://www."
+        private const val REDDIT_URL = "reddit.com"
+        private const val REDDIT_APP_LINK = "reddit.app.link"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch(Dispatchers.IO) {
-
             // Clear query parameter garbage
-            val cleanedUrl = intent.data?.toString()?.split("?")?.getOrNull(0) ?: run {
+            val cleanedUrl = intent.data?.toString()?.clearQueryParams() ?: run {
                 onError()
                 return@launch
             }
 
             // If it's already an old.reddit link (somehow), skip the rest
-            if (cleanedUrl.contains("https://old.")) {
+            if (cleanedUrl.contains(SUBDOMAIN_OLD)) {
                 startBrowser(cleanedUrl)
                 return@launch
             }
 
-            // Replace https://www. with https://old.
-            if (cleanedUrl.contains("https://www.reddit.com")) {
-                startBrowser(cleanedUrl.replace("https://www.", "https://old."))
-            } else if (cleanedUrl.contains("https://reddit.com")) {
-                startBrowser(cleanedUrl.replace("https://", "https://old."))
-            } else {
+            fun String.checkUrl(): Boolean {
+                // Replace https://www. with https://old.
+                if (contains("$SUBDOMAIN_WWW$REDDIT_URL")) {
+                    startBrowser(replace(SUBDOMAIN_WWW, SUBDOMAIN_OLD))
+                    return true
+                } else if (contains("$PROTOCOL_HTTPS$REDDIT_URL")) {
+                    startBrowser(replace(PROTOCOL_HTTPS, SUBDOMAIN_OLD))
+                    return true
+                }
+
+                return false
+            }
+
+            if (!cleanedUrl.checkUrl()) {
                 try {
                     val urlTmp = URL(cleanedUrl)
                     val connection = urlTmp.openConnection() as HttpURLConnection
+
+                    // Set desktop user-agent
                     connection.setRequestProperty( "User-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4" )
-                    connection.inputStream // Need to call inputStream to get the redirectUrl
+
+                    // Need to call inputStream to get the redirectUrl
+                    connection.inputStream
 
                     var redirectUrl = connection.url.toString()
 
-                    if (cleanedUrl.contains("reddit.app.link")) {
+                    if (cleanedUrl.contains(REDDIT_APP_LINK)) {
                         // Clean link again
-                        redirectUrl = redirectUrl.split("?").getOrNull(0) ?: run {
+                        redirectUrl = redirectUrl.clearQueryParams() ?: run {
                             onError()
                             return@launch
                         }
@@ -58,29 +76,24 @@ class RedirectActivity : ComponentActivity() {
 
                     connection.disconnect()
 
-                    // Replace https://www. with https://old.
-                    if (redirectUrl.contains("https://www.reddit.com")) {
-                        startBrowser(redirectUrl.replace("https://www.", "https://old."))
-                    } else if (redirectUrl.contains("https://reddit.com")) {
-                        startBrowser(redirectUrl.replace("https://", "https://old."))
-                    } else {
+                    if (!redirectUrl.checkUrl()) {
                         // All else fails
                         onError()
                     }
                 } catch (e: Exception) {
-                    Log.e("RedirectActivity", e.message, e)
+                    Log.e(this@RedirectActivity::class.java.simpleName, e.message, e)
                     onError()
                 }
             }
         }
     }
 
+    private fun String.clearQueryParams(): String? = split("?").getOrNull(0)
+
     private fun startBrowser(url: String) {
         startActivity(
             Intent(Intent.ACTION_VIEW)
-                .setData(
-                    Uri.parse(url)
-                )
+                .setData(Uri.parse(url))
         )
 
         finish()
@@ -93,14 +106,20 @@ class RedirectActivity : ComponentActivity() {
         lifecycleScope.launch(Dispatchers.Main) {
             Toast.makeText(this@RedirectActivity, R.string.error, Toast.LENGTH_LONG).show()
 
+            // Temporarily disable deeplinking
             setDeepLinkingState(PackageManager.COMPONENT_ENABLED_STATE_DISABLED)
+
             startBrowser(
                 url = intent.data?.toString() ?: run {
+                    // If url is null, re-enabled deeplinking and finish
                     setDeepLinkingState(PackageManager.COMPONENT_ENABLED_STATE_ENABLED)
                     finish()
+
                     return@launch
                 }
             )
+
+            // Re-enable deeplinkiing
             setDeepLinkingState(PackageManager.COMPONENT_ENABLED_STATE_ENABLED)
 
             finish()
