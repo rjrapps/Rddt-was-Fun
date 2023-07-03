@@ -1,4 +1,4 @@
-package com.rjr.apps.ripwasfun.ui.theme
+package com.rjr.apps.rddtwasfun.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import com.rjr.apps.ripwasfun.R
+import com.rjr.apps.rddtwasfun.R
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -37,7 +37,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun RipWasFunTheme(
+fun RddtWasFunTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,

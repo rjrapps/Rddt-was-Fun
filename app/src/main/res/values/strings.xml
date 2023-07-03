@@ -1,8 +1,8 @@
 <resources>
 
-    <string name="app_name">Rip was Fun</string>
+    <string name="app_name">Rddt was Fun</string>
     <string name="app_settings_instructions">In order to enable redirecting to old.reddit, you will need to manually allow this app to open all the supported links. Please go to the App Info settings menu, tap \"Open by default\" (the wording may be slightly different, depending on the device), then add all supported links / web addresses.\n\nOnce that is done, you should be able to tap any reddit link and it will take you to old.reddit instead of new reddit!</string>
     <string name="app_settings_button">Open App Info Settings</string>
-    <string name="error">Rip was Fun encountered an error!</string>
+    <string name="error">Rddt was Fun encountered an error!</string>
 
 </resources>

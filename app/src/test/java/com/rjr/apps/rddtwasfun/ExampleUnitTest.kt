@@ -1,4 +1,4 @@
-package com.rjr.apps.ripwasfun
+package com.rjr.apps.rddtwasfun
 
 import org.junit.Test
 

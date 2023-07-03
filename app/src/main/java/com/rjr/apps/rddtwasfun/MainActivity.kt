@@ -1,4 +1,4 @@
-package com.rjr.apps.ripwasfun
+package com.rjr.apps.rddtwasfun
 
 import android.content.Intent
 import android.content.res.Configuration
@@ -28,14 +28,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rjr.apps.ripwasfun.ui.theme.RipWasFunTheme
+import com.rjr.apps.rddtwasfun.ui.theme.RddtWasFunTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            RipWasFunTheme {
+            RddtWasFunTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -128,7 +128,7 @@ class MainActivity : ComponentActivity() {
     @Preview(name = "Light mode", showBackground = true, showSystemUi = true)
     @Composable
     private fun Preview() {
-        RipWasFunTheme {
+        RddtWasFunTheme {
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background

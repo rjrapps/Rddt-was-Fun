@@ -1,4 +1,4 @@
-package com.rjr.apps.ripwasfun
+package com.rjr.apps.rddtwasfun
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.rjr.apps.ripwasfun", appContext.packageName)
+        assertEquals("com.rjr.apps.rddtwasfun", appContext.packageName)
     }
 }

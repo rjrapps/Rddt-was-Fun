@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.rjr.apps.ripwasfun'
+    namespace 'com.rjr.apps.rddtwasfun'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.rjr.apps.ripwasfun"
+        applicationId "com.rjr.apps.rddtwasfun"
         minSdk 23
         targetSdk 33
         versionCode 1

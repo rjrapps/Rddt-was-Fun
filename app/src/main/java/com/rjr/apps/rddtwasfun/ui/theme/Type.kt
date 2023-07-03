@@ -1,4 +1,4 @@
-package com.rjr.apps.ripwasfun.ui.theme
+package com.rjr.apps.rddtwasfun.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
