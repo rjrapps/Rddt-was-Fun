@@ -29,7 +29,7 @@ class RedirectActivity : ComponentActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             // Clear query parameter garbage
-            val cleanedUrl = intent.data?.toString()?.clearQueryParams() ?: run {
+            val cleanedUrl = intent.data?.clearQueryParams() ?: run {
                 onError()
                 return@launch
             }
@@ -88,7 +88,27 @@ class RedirectActivity : ComponentActivity() {
         }
     }
 
-    private fun String.clearQueryParams(): String? = split("?").getOrNull(0)
+    private fun Uri.clearQueryParams(): String? {
+        val cleanedUrl = toString().split("?").getOrNull(0)
+        val contextCount = getQueryParameter("context")
+
+        if (!contextCount.isNullOrBlank()) {
+            return "$cleanedUrl?context=$contextCount"
+        }
+
+        return cleanedUrl
+    }
+
+    private fun String.clearQueryParams(): String? {
+        val cleanedUrl = toString().split("?").getOrNull(0)
+        val contextCount = Uri.parse(this).getQueryParameter("context")
+
+        if (!contextCount.isNullOrBlank()) {
+            return "$cleanedUrl?context=$contextCount"
+        }
+
+        return cleanedUrl
+    }
 
     private fun startBrowser(url: String) {
         startActivity(
