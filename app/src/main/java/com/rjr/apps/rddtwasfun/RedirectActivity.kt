@@ -22,6 +22,7 @@ class RedirectActivity : ComponentActivity() {
         private const val SUBDOMAIN_WWW = "https://www."
         private const val REDDIT_URL = "reddit.com"
         private const val REDDIT_APP_LINK = "reddit.app.link"
+        private const val REDDIT_MEDIA_LINK = "https://www.reddit.com/media"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +32,15 @@ class RedirectActivity : ComponentActivity() {
             // Clear query parameter garbage
             val cleanedUrl = intent.data?.clearQueryParams() ?: run {
                 onError()
+                return@launch
+            }
+
+            // If a Reddit media link, we need to show it in new reddit (ugh)
+            if (cleanedUrl.contains(REDDIT_MEDIA_LINK)) {
+                startBrowser(
+                    url = cleanedUrl,
+                    temporarilyDisableDeeplinking = true
+                )
                 return@launch
             }
 
@@ -89,11 +99,17 @@ class RedirectActivity : ComponentActivity() {
     }
 
     private fun Uri.clearQueryParams(): String? {
-        val cleanedUrl = toString().split("?").getOrNull(0)
+        var cleanedUrl = toString().split("?").getOrNull(0)
         val contextCount = getQueryParameter("context")
+        val urlParam = getQueryParameter("url")
+
+        if (!urlParam.isNullOrBlank()) {
+            cleanedUrl += "?url=$urlParam"
+        }
 
         if (!contextCount.isNullOrBlank()) {
-            return "$cleanedUrl?context=$contextCount"
+            cleanedUrl += if (!urlParam.isNullOrBlank()) "&" else "?"
+            cleanedUrl += "context=$contextCount"
         }
 
         return cleanedUrl
@@ -110,11 +126,28 @@ class RedirectActivity : ComponentActivity() {
         return cleanedUrl
     }
 
-    private fun startBrowser(url: String) {
-        startActivity(
-            Intent(Intent.ACTION_VIEW)
-                .setData(Uri.parse(url))
-        )
+    private fun startBrowser(url: String, temporarilyDisableDeeplinking: Boolean = false) {
+        fun startBrowser() {
+            val uri = Uri.parse(url)
+
+            startActivity(
+                Intent(Intent.ACTION_VIEW)
+                    .setData(uri)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            )
+        }
+
+        if (temporarilyDisableDeeplinking) {
+            // Temporarily disable deeplinking
+            setDeepLinkingState(PackageManager.COMPONENT_ENABLED_STATE_DISABLED)
+
+            startBrowser()
+
+            // Re-enable deeplinking
+            setDeepLinkingState(PackageManager.COMPONENT_ENABLED_STATE_ENABLED)
+        } else {
+            startBrowser()
+        }
 
         finish()
     }
@@ -124,25 +157,16 @@ class RedirectActivity : ComponentActivity() {
      */
     private fun onError() {
         lifecycleScope.launch(Dispatchers.Main) {
-            Toast.makeText(this@RedirectActivity, R.string.error, Toast.LENGTH_LONG).show()
-
-            // Temporarily disable deeplinking
-            setDeepLinkingState(PackageManager.COMPONENT_ENABLED_STATE_DISABLED)
+            Toast.makeText(
+                this@RedirectActivity,
+                R.string.error,
+                Toast.LENGTH_LONG
+            ).show()
 
             startBrowser(
-                url = intent.data?.toString() ?: run {
-                    // If url is null, re-enabled deeplinking and finish
-                    setDeepLinkingState(PackageManager.COMPONENT_ENABLED_STATE_ENABLED)
-                    finish()
-
-                    return@launch
-                }
+                url = intent.data?.toString() ?: return@launch,
+                temporarilyDisableDeeplinking = true
             )
-
-            // Re-enable deeplinkiing
-            setDeepLinkingState(PackageManager.COMPONENT_ENABLED_STATE_ENABLED)
-
-            finish()
         }
     }
 
