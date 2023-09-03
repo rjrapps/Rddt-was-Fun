@@ -23,6 +23,7 @@ class RedirectActivity : ComponentActivity() {
         private const val REDDIT_URL = "reddit.com"
         private const val REDDIT_APP_LINK = "reddit.app.link"
         private const val REDDIT_MEDIA_LINK = "https://www.reddit.com/media"
+        private const val REDDIT_S_LINK = "/s/"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +53,9 @@ class RedirectActivity : ComponentActivity() {
 
             fun String.checkUrl(): Boolean {
                 // Replace https://www. with https://old.
-                if (contains("$SUBDOMAIN_WWW$REDDIT_URL")) {
+                if (contains(REDDIT_S_LINK)) {
+                    return false
+                } else if (contains("$SUBDOMAIN_WWW$REDDIT_URL")) {
                     startBrowser(replace(SUBDOMAIN_WWW, SUBDOMAIN_OLD))
                     return true
                 } else if (contains("$PROTOCOL_HTTPS$REDDIT_URL")) {
@@ -76,7 +79,7 @@ class RedirectActivity : ComponentActivity() {
 
                     var redirectUrl = connection.url.toString()
 
-                    if (cleanedUrl.contains(REDDIT_APP_LINK)) {
+                    if (cleanedUrl.contains(REDDIT_APP_LINK) || cleanedUrl.contains(REDDIT_S_LINK)) {
                         // Clean link again
                         redirectUrl = redirectUrl.clearQueryParams() ?: run {
                             onError()
@@ -116,14 +119,7 @@ class RedirectActivity : ComponentActivity() {
     }
 
     private fun String.clearQueryParams(): String? {
-        val cleanedUrl = toString().split("?").getOrNull(0)
-        val contextCount = Uri.parse(this).getQueryParameter("context")
-
-        if (!contextCount.isNullOrBlank()) {
-            return "$cleanedUrl?context=$contextCount"
-        }
-
-        return cleanedUrl
+        return Uri.parse(this).clearQueryParams()
     }
 
     private fun startBrowser(url: String, temporarilyDisableDeeplinking: Boolean = false) {
