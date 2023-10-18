@@ -18,7 +18,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.RddtWasFun" >
+            android:theme="@style/Theme.RddtWasFun.MainActivity" >
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,6 +30,7 @@
         <activity
             android:name=".RedirectActivity"
             android:exported="true"
+            android:noHistory="true"
             android:theme="@style/Theme.RddtWasFun">
 
             <intent-filter>

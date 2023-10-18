@@ -8,11 +8,13 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.system.exitProcess
 
 class RedirectActivity : ComponentActivity() {
 
@@ -27,12 +29,13 @@ class RedirectActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch(Dispatchers.IO) {
             // Clear query parameter garbage
             val cleanedUrl = intent.data?.clearQueryParams() ?: run {
-                onError()
+                onError("[clearQueryParams failed]")
                 return@launch
             }
 
@@ -74,15 +77,15 @@ class RedirectActivity : ComponentActivity() {
                     // Set desktop user-agent
                     connection.setRequestProperty( "User-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4" )
 
-                    // Need to call inputStream to get the redirectUrl
-                    connection.inputStream
+                    // Need to call responseCode to get the redirectUrl
+                    connection.responseCode
 
                     var redirectUrl = connection.url.toString()
 
                     if (cleanedUrl.contains(REDDIT_APP_LINK) || cleanedUrl.contains(REDDIT_S_LINK)) {
                         // Clean link again
                         redirectUrl = redirectUrl.clearQueryParams() ?: run {
-                            onError()
+                            onError("[clearQueryParams failed]")
                             return@launch
                         }
                     }
@@ -91,11 +94,11 @@ class RedirectActivity : ComponentActivity() {
 
                     if (!redirectUrl.checkUrl()) {
                         // All else fails
-                        onError()
+                        onError("[checkUrl failed]")
                     }
                 } catch (e: Exception) {
                     Log.e(this@RedirectActivity::class.java.simpleName, e.message, e)
-                    onError()
+                    onError(e.stackTraceToString())
                 }
             }
         }
@@ -122,7 +125,7 @@ class RedirectActivity : ComponentActivity() {
         return Uri.parse(this).clearQueryParams()
     }
 
-    private fun startBrowser(url: String, temporarilyDisableDeeplinking: Boolean = false) {
+    private fun startBrowser(url: String, temporarilyDisableDeeplinking: Boolean = false, fromError: Boolean = false) {
         fun startBrowser() {
             val uri = Uri.parse(url)
 
@@ -145,23 +148,45 @@ class RedirectActivity : ComponentActivity() {
             startBrowser()
         }
 
+        if (!fromError) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                val message = if (url.contains(REDDIT_MEDIA_LINK)) {
+                    R.string.success_media
+                } else {
+                    R.string.success
+                }
+
+                Toast.makeText(this@RedirectActivity, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         finish()
+
+        // Exit so that the splash screen loads every time
+        exitProcess(0)
     }
 
     /**
      * Show error toast and launch unedited link in browser.
      */
-    private fun onError() {
+    private fun onError(message: String) {
         lifecycleScope.launch(Dispatchers.Main) {
+            val message = getString(R.string.error) + if (MainActivity.developerModeEnabled) {
+                " $message"
+            } else {
+                " ${getString(R.string.opening_unedited_link)}"
+            }
+
             Toast.makeText(
                 this@RedirectActivity,
-                R.string.error,
+                message,
                 Toast.LENGTH_LONG
             ).show()
 
             startBrowser(
                 url = intent.data?.toString() ?: return@launch,
-                temporarilyDisableDeeplinking = true
+                temporarilyDisableDeeplinking = true,
+                fromError = true
             )
         }
     }
